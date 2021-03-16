@@ -15,7 +15,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 name="EVN_Archive"
 
 # Ensure a valid python version
-ensure_python(">=3.5")
+ensure_python(">=3.6")
 
 # Get our version
 version = get_version(os.path.join(name, "_version.py"))
@@ -64,6 +64,7 @@ setup_args = dict(
     packages=setuptools.find_packages(),
     install_requires=[
         "jupyterlab~=3.0",
+        "pyvo >=1.1"
     ],
     zip_safe=False,
     include_package_data=True,
