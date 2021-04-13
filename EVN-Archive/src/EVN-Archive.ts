@@ -7,6 +7,22 @@ export interface ExpListInterface {
     src: string[];
  }
 
+export interface SearchInterface {
+  exp?: string;
+  source?: string;
+  ra?: string;
+  dec?: string;
+  radius?: string;
+}
+
+export interface SearchResult {
+   exp: string; 
+   source: string; 
+   ra: string;
+   dec: string;
+}
+export interface SearchResultInterface extends Array<SearchResult>{}
+
 /**
  * Call the API extension
  *
@@ -16,7 +32,8 @@ export interface ExpListInterface {
  */
 export async function requestAPI<T>(
   endPoint = '',
-  init: RequestInit = {}
+  init: RequestInit = {},
+  search: SearchInterface = {}
 ): Promise<T> {
   // Make request to Jupyter API
   const settings = ServerConnection.makeSettings();

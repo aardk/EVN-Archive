@@ -1,6 +1,8 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { ExpListInterface } from './EVN-Archive';
+import { SearchInterface } from './EVN-Archive';
+import { requestAPI } from './EVN-Archive';
 
 import React from 'react';
 
@@ -45,6 +47,14 @@ export class EVNWidget extends ReactWidget {
     this.addClass('jp-ReactWidget');
     this.theAPP = app;
     this.cwd = cwd
+  }
+
+  send_request() : void {
+    let x : SearchInterface = {'exp': 'N11L4'}
+    requestAPI<any>('search', {}, x)
+      .then(search_result => {
+        console.log(search_result);
+    })
   }
 
   protected render(): React.ReactElement<any> {
@@ -98,7 +108,8 @@ export class EVNWidget extends ReactWidget {
         }}
         options = { this.src_list }
       />
-      </div>
+      </div> 
+      <button onClick = { this.send_request}> SEARCH </button>
    </div>
     )
   }
