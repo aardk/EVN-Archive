@@ -19,6 +19,7 @@ export class EVNWidget extends ReactWidget {
    */
   private exp_list:object[];
   private src_list:object[];
+  private bands:object[];
   protected theAPP : JupyterFrontEnd;
   protected cwd : string;
   protected _selected : IEXP = {
@@ -47,6 +48,14 @@ export class EVNWidget extends ReactWidget {
     this.addClass('jp-ReactWidget');
     this.theAPP = app;
     this.cwd = cwd
+    this.bands  = [ { value: 'any', label: 'Any band'},
+                    { value: 'P', label: 'P band' },
+  		    { value: 'L', label: 'L band' },
+  		    { value: 'S', label: 'S band' },
+  		    { value: 'C', label: 'C band' },
+  		    { value: 'X', label: 'X band' },
+  		    { value: 'K', label: 'K band' },
+                    { value: 'Q', label: 'Q band' }]
   }
 
   send_request() : void {
@@ -58,10 +67,13 @@ export class EVNWidget extends ReactWidget {
   }
 
   protected render(): React.ReactElement<any> {
+    const outerdiv = { width: '610px' }
+    const innersmalldiv = { width: '200px', display: 'inline-block'}
+    const innerbigdiv = { width: '300px', display: 'inline-block'}
     return (
 //      <div style = {{ max-width: '300px', display: 'flex', flex-wrap: 'wrap' }}>
-    <div style = {{ display: 'flex'}}>
-      <div style = {{ width: '300px'}}>
+  <div style = { outerdiv }>
+      <div style = { innerbigdiv}>
       <label> Experiment </label>
       <Select
         name = 'experminent'
@@ -85,7 +97,7 @@ export class EVNWidget extends ReactWidget {
         options = { this.exp_list }
       />
       </div>
-      <div style = {{ width: '300px'}}>
+      <div style = { innerbigdiv }>
       <label> Source </label>
       <Select
         name = 'band'
@@ -104,12 +116,55 @@ export class EVNWidget extends ReactWidget {
           commands.execute('docmanager:open', {
                       path: 'EVN_continuum_pyp.ipynb'
                 });
-
         }}
         options = { this.src_list }
       />
-      </div> 
+      </div>
+      <div style = { innersmalldiv }>
+      <form>
+        <label>
+          Right Ascension:
+          <input
+            name="ra"
+            type="text"
+           />
+        </label>
+      </form>
+      </div>
+      <div style = { innersmalldiv }>
+      <form>
+        <label>
+          Declination:
+          <input
+            name="dec"
+            type="text"
+           />
+        </label>
+      </form>
+      </div>
+      <div style = { innersmalldiv }>
+      <form>
+        <label>
+          Radius (arcseconds):
+          <input
+            name="radius"
+            type="number"
+           />
+        </label>
+      </form>
+      </div>
+      <div style = { innerbigdiv }>
+      <label> Observing Band </label>
+      <Select
+        name = 'band'
+        multiple = {true}
+        options = { this.bands }
+      />
+      </div>
+
+      <div style = { innersmalldiv } >
       <button onClick = { this.send_request}> SEARCH </button>
+      </div>
    </div>
     )
   }
