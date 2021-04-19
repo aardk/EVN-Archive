@@ -21,13 +21,12 @@ export class EVNWidget extends ReactWidget {
   private src_list:object[];
   private bands:object[];
   protected theAPP : JupyterFrontEnd;
-  protected cwd : string;
   protected _selected : IEXP = {
     exp : null,
     src : null
   };
 
-  constructor(allObs: ExpListInterface, app: JupyterFrontEnd, cwd:string) {
+  constructor(allObs: ExpListInterface, app: JupyterFrontEnd) {
     super();
 
     // All experiment codes in EVN Archive
@@ -47,7 +46,6 @@ export class EVNWidget extends ReactWidget {
     this.src_list = src_list;
     this.addClass('jp-ReactWidget');
     this.theAPP = app;
-    this.cwd = cwd
     this.bands  = [ { value: 'any', label: 'Any band'},
                     { value: 'P', label: 'P band' },
   		    { value: 'L', label: 'L band' },

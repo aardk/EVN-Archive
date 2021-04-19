@@ -24,8 +24,10 @@ class ExpListHandler(APIHandler):
         # Get list of available experiments and sources from VO and send results to client.
         service = pyvo.dal.TAPService('http://evn-vo.jive.eu/tap')
         results = service.search("SELECT target_name, obs_id FROM ivoa.obscore")
-        expList = sorted([x.decode() for x in set(results.getcolumn('obs_id'))])
-        srcList = sorted([x.decode() for x in set(results.getcolumn('target_name'))])
+        #expList = sorted([x.decode() for x in set(results.getcolumn('obs_id'))])
+        #srcList = sorted([x.decode() for x in set(results.getcolumn('target_name'))])
+        expList = sorted([x for x in set(results.getcolumn('obs_id'))])
+        srcList = sorted([x for x in set(results.getcolumn('target_name'))])
         response = {'exp': expList, 'src': srcList}
         self.finish(json.dumps(response))
 
@@ -55,7 +57,8 @@ class SearchHandler(APIHandler):
         }
         service = pyvo.dal.TAPService('http://evn-vo.jive.eu/tap')
         results = service.search("SELECT * FROM ivoa.obscore WHERE obs_id = 'N11L3'")
-        expList = sorted([x.decode() for x in set(results.getcolumn('obs_id'))])
+        #expList = sorted([x.decode() for x in set(results.getcolumn('obs_id'))])
+        expList = sorted([x for x in set(results.getcolumn('obs_id'))])
         response = {'exp': 'NL11L3', 'source': 'abc', 'ra': '0:0', 'dec': '1:1'}
         self.finish(json.dumps([response, response]))
 
@@ -68,8 +71,10 @@ class GetExpHandler(APIHandler):
         # Get list of available experiments and sources from VO and send results to client.
         service = pyvo.dal.TAPService('http://evn-vo.jive.eu/tap')
         results = service.search("SELECT target_name, obs_id FROM ivoa.obscore")
-        expList = sorted([x.decode() for x in set(results.getcolumn('obs_id'))])
-        srcList = sorted([x.decode() for x in set(results.getcolumn('target_name'))])
+        #expList = sorted([x.decode() for x in set(results.getcolumn('obs_id'))])
+        #srcList = sorted([x.decode() for x in set(results.getcolumn('target_name'))])
+        expList = sorted([x for x in set(results.getcolumn('obs_id'))])
+        srcList = sorted([x for x in set(results.getcolumn('target_name'))])
         response = {'exp': expList, 'src': srcList}
         self.finish(json.dumps(response))
         ### TEST Code ; fetch experiment
@@ -78,7 +83,8 @@ class GetExpHandler(APIHandler):
         os.makedirs(path, mode=0o775, exist_ok=True)
         result = service.search(f"SELECT * FROM ivoa.obscore WHERE obs_id = '{EXP}'")
         dataobj = result[0].getdataobj()
-        urls = [f.decode() for f in dataobj.getcolumn('access_url').data]
+        #urls = [f.decode() for f in dataobj.getcolumn('access_url').data]
+        urls = [f for f in dataobj.getcolumn('access_url').data]
         for url in urls:
             filename = pathlib.Path(urlparse(url).path).name 
             f = os.path.join(path, filename)

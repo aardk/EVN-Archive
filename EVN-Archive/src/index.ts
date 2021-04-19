@@ -3,7 +3,6 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { ILauncher } from '@jupyterlab/launcher';
-import { IFileBrowserFactory } from '@jupyterlab/filebrowser';
 import { MainAreaWidget } from '@jupyterlab/apputils';
 import { reactIcon } from '@jupyterlab/ui-components';
 
@@ -20,12 +19,10 @@ namespace CommandIDs {
  */
 const extension: JupyterFrontEndPlugin<void> = {
   id: 'EVN-Archive',
-  requires: [IFileBrowserFactory],
   optional: [ ILauncher ],
   autoStart: true,
   activate: (
     app: JupyterFrontEnd,
-    browserFactory: IFileBrowserFactory,
     launcher: ILauncher | null
   ) => {
     console.log('JupyterLab extension EVN-Archive is activated!');
@@ -41,9 +38,8 @@ const extension: JupyterFrontEndPlugin<void> = {
           icon: args => (args['isPalette'] ? null : reactIcon),
           execute: async args  => {
 	    //const cwd:string = args['cwd'] == "" ? browserFactory.defaultBrowser.model.path : args['cwd']
-	    const cwd:string = browserFactory.defaultBrowser.model.path 
 	    console.log(args)
-            const content = new EVNWidget(exp_list, app, cwd);
+            const content = new EVNWidget(exp_list, app);
             const widget = new MainAreaWidget<EVNWidget>({ content });
             widget.title.label = 'Experiment selection';
             app.shell.add(widget, 'main');
