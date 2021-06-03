@@ -6,6 +6,7 @@ from notebook.utils import url_path_join
 from urllib.request import urlretrieve
 from urllib.parse import urlparse
 import pathlib
+import numpy import np
 
 import tornado
 import re
@@ -42,6 +43,7 @@ class ExpListHandler(APIHandler):
         exp = {'exp' : [r.findall(i)[0] for i in dirs]}
         self.finish(json.dumps(exp))
 
+
 class SearchHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post, 
     # patch, put, delete, options) to ensure only authorized user can request the 
@@ -49,19 +51,52 @@ class SearchHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
         # Get list of available experiments and sources from VO and send results to client.
-        q = { 'exp': self.get_query_argument('exp', default=''),
-              'src': self.get_query_argument('src', default=''),
-              'ra': self.get_query_argument('ra', default=''),
-              'dec': self.get_query_argument('dec', default=''),
+        q = { 'obs_id': self.get_query_argument('obs_id', default=''),
+              'target_name': self.get_query_argument('target_name', default=''),
+              's_ra': self.get_query_argument('s_ra', default=''),
+              's_dec': self.get_query_argument('s_dec', default=''),
               'radius': self.get_query_argument('radius', default=''),
         }
-        service = pyvo.dal.TAPService('http://evn-vo.jive.eu/tap')
-        results = service.search("SELECT * FROM ivoa.obscore WHERE obs_id = 'N11L3'")
-        #expList = sorted([x.decode() for x in set(results.getcolumn('obs_id'))])
-        expList = sorted([x for x in set(results.getcolumn('obs_id'))])
-        response = {'exp': 'NL11L3', 'source': 'abc', 'ra': '0:0', 'dec': '1:1'}
-        self.finish(json.dumps([response, response]))
+        service = pyvo.dal.TAPService('http://evn-vo.jive.eu/tap') 
+        # Translate standard wildcards to SQL
+        transtable = str.maketrans({'*': '%', '?': '_', '!': '^'})
+        query = "SELECT target_name, obs_id, t_exptime, s_ra, s_dec"
+        query_terms = []
+        if q['obs_id'] != "":
+            exp = q['obs_id'].translate(transtable)
+            query_terms.append(f"obs_id LIKE '{exp}'")
+        if q['target_name'] != "":
+            src = q['target_name'].translate(transtable)
+            query_terms.append(f"target_name LIKE '{src}'")
+        if q['radius'] != "":
+            query += f", DISTANCE(POINT('ICRS', {q['s_ra']}, {q['s_dec']}), POINT('ICRS', s_ra, s_dec)) AS dist"
+            query_terms.append(f"1=CONTAINS(POINT('ICRS', {q['s_ra']}, {q['s_dec']}), CIRCLE('ICRS', s_ra, s_dec, {q['radius']})) ORDER BY dist ASC")
+        query += " FROM ivoa.obscore"
+        for i, term in enumerate(query_terms):
+            if i == 0:
+                query += f" WHERE {term}"
+            else:
+                query += f" AND {term}"
 
+        result = service.search(query)
+        response = []
+        for rec in result:
+            row = {}
+            for key in rec:
+                val = rec[key]
+                # In some versions of pyvo queries yield strings whereas 
+                # in others it is byte arrays
+                if type(val) == bytes:
+                    row[key] = val.decode()
+                elif type(val) == np.float32:
+                    row[key] = float(val)
+                elif type(val) == np.int32:
+                    row[key] = int(val)
+                else:
+                    row[key] = val
+            response.append(row)
+        self.finish(json.dumps(response))
+            
 class GetExpHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post, 
     # patch, put, delete, options) to ensure only authorized user can request the 
