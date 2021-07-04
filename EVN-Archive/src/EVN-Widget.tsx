@@ -13,53 +13,14 @@ import { OptionsType } from "react-select";
 
 import MaterialTable from 'material-table';
 
-export class EVNWidget extends ReactWidget {
-  /**
-   * Constructs a new EVNWidget.
-   */
-  private exp_list : Option[];
-  private src_list : Option[];
-  private bands : Option[];
-  protected theAPP : JupyterFrontEnd;
+const EVNComponent = (
+  props: {
+      exp_list: Option[];
+      src_list: Option[]
+      bands: Option[];
+    }): JSX.Element => {
+    const [results, setResults] = useState([])
 
-  constructor(allObs: ExpListInterface, app: JupyterFrontEnd) {
-    super();
-
-    // All experiment codes in EVN Archive
-    let exp_list: Option[] = []
-    for (var exp of allObs.exp) {
-      let entry = { 'value': exp, 'label': exp };
-      exp_list.push(entry);
-    }
-    this.exp_list = exp_list;
-
-    // All sources in EVN Archive
-    let src_list: Option[] = []
-    for (var src of allObs.src) {
-      let entry = { 'value': src, 'label': src };
-      src_list.push(entry);
-    }
-    this.src_list = src_list;
-    this.addClass('jp-ReactWidget');
-    this.theAPP = app;
-    this.bands  = [ { value: 'any', label: 'Any band'},
-                    { value: 'P', label: 'P band' },
-  		    { value: 'L', label: 'L band' },
-  		    { value: 'S', label: 'S band' },
-  		    { value: 'C', label: 'C band' },
-  		    { value: 'X', label: 'X band' },
-  		    { value: 'K', label: 'K band' },
-                    { value: 'Q', label: 'Q band' }]
-  }
-
-  send_request(req : SearchInterface) : void {
-    requestAPI<any>('search', {}, req)
-      .then(search_result => {
-        console.log(search_result);
-    })
-  }
-
-  protected render(): React.ReactElement<any> {
     const outerdiv = { width: '610px' }
     const innersmalldiv = { width: '200px', display: 'inline-block'}
     const innerbigdiv = { width: '300px', display: 'inline-block'}
@@ -81,7 +42,11 @@ export class EVNWidget extends ReactWidget {
     })}
     onSubmit = {(values, { setSubmitting }) => {
              console.log('values =', values);
-             this.send_request(values);
+             requestAPI<any>('search', {}, values)
+        .then(search_result => {
+          console.log(search_result);
+          setResults(search_result);
+        })
              setSubmitting(false);
          }}
   >
@@ -93,7 +58,7 @@ export class EVNWidget extends ReactWidget {
           name = 'obs_id'
           component = {FormikSelect}
           placeholder = "Experiment code"
-          options = { this.exp_list }
+          options = { props.exp_list }
           isMulti = {false}
         />
         <ErrorMessage name="obs_id" />
@@ -105,7 +70,7 @@ export class EVNWidget extends ReactWidget {
           name = 'target_name'
           component = {FormikSelect}
           placeholder = "Source name"
-          options = { this.src_list }
+          options = { props.src_list }
           isMulti = {true}
         />
       <ErrorMessage name="target_name" />
@@ -116,7 +81,7 @@ export class EVNWidget extends ReactWidget {
           className = 'FormikSelect'
           name = 'band'
           placeholder = "Band L, C, X, etc."
-          options = { this.bands }
+          options = { props.bands }
           component = {FormikSelect}
           isMulti = {true}
         />
@@ -140,7 +105,11 @@ export class EVNWidget extends ReactWidget {
     })}
     onSubmit = {(values, { setSubmitting }) => {
              console.log('values =', values);
-             this.send_request(values);
+             requestAPI<any>('search', {}, values)
+                .then(search_result => {
+                    console.log(search_result);
+                    setResults(search_result);
+             });
              setSubmitting(false);
          }}
   >
@@ -186,6 +155,55 @@ export class EVNWidget extends ReactWidget {
           title="Demo Title"
         /> 
    </div>
+  );
+};
+
+export class EVNWidget extends ReactWidget {
+  /**
+   * Constructs a new EVNWidget.
+   */
+  private exp_list : Option[];
+  private src_list : Option[];
+  private bands : Option[];
+  protected theAPP : JupyterFrontEnd;
+
+  constructor(allObs: ExpListInterface, app: JupyterFrontEnd) {
+    super();
+
+    // All experiment codes in EVN Archive
+    let exp_list: Option[] = []
+    for (var exp of allObs.exp) {
+      let entry = { 'value': exp, 'label': exp };
+      exp_list.push(entry);
+    }
+    this.exp_list = exp_list;
+
+    // All sources in EVN Archive
+    let src_list: Option[] = []
+    for (var src of allObs.src) {
+      let entry = { 'value': src, 'label': src };
+      src_list.push(entry);
+    }
+    this.src_list = src_list;
+    this.addClass('jp-ReactWidget');
+    this.theAPP = app;
+    this.bands  = [ { value: 'any', label: 'Any band'},
+                    { value: 'P', label: 'P band' },
+            { value: 'L', label: 'L band' },
+            { value: 'S', label: 'S band' },
+            { value: 'C', label: 'C band' },
+            { value: 'X', label: 'X band' },
+            { value: 'K', label: 'K band' },
+                    { value: 'Q', label: 'Q band' }]
+  }
+
+  protected render(): React.ReactElement<any> {
+    return (
+      <EVNComponent 
+      exp_list = {this.exp_list}
+      src_list = {this.src_list}
+      bands = {this.bands}
+    />
     )
   }
 }
