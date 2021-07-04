@@ -6,7 +6,7 @@ from notebook.utils import url_path_join
 from urllib.request import urlretrieve
 from urllib.parse import urlparse
 import pathlib
-import numpy import np
+import numpy as np
 
 import tornado
 import re
@@ -48,6 +48,14 @@ class SearchHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post, 
     # patch, put, delete, options) to ensure only authorized user can request the 
     # Jupyter server
+    def ra_to_deg(self, ra):
+        h,m,sec = [float(x) for x in re.split(':|h|m|s', ra)[:3]]
+        return (h + m / 60 + sec / 3600) * 360 / 24
+
+    def dec_to_deg(self, dec):
+        d,m,sec = [float(x) for x in re.split(':|d|\'|\"', dec)[:3]]
+        return d + m / 60 + sec / 3600
+
     @tornado.web.authenticated
     def get(self):
         # Get list of available experiments and sources from VO and send results to client.
@@ -57,6 +65,7 @@ class SearchHandler(APIHandler):
               's_dec': self.get_query_argument('s_dec', default=''),
               'radius': self.get_query_argument('radius', default=''),
         }
+        logger.warning("obs_id = '{}'".format(self.get_query_argument('obs_id', default=''))) 
         service = pyvo.dal.TAPService('http://evn-vo.jive.eu/tap') 
         # Translate standard wildcards to SQL
         transtable = str.maketrans({'*': '%', '?': '_', '!': '^'})
@@ -64,20 +73,23 @@ class SearchHandler(APIHandler):
         query_terms = []
         if q['obs_id'] != "":
             exp = q['obs_id'].translate(transtable)
-            query_terms.append(f"obs_id LIKE '{exp}'")
+            query_terms.append(f"(obs_id LIKE '{exp}')")
         if q['target_name'] != "":
-            src = q['target_name'].translate(transtable)
-            query_terms.append(f"target_name LIKE '{src}'")
-        if q['radius'] != "":
-            query += f", DISTANCE(POINT('ICRS', {q['s_ra']}, {q['s_dec']}), POINT('ICRS', s_ra, s_dec)) AS dist"
-            query_terms.append(f"1=CONTAINS(POINT('ICRS', {q['s_ra']}, {q['s_dec']}), CIRCLE('ICRS', s_ra, s_dec, {q['radius']})) ORDER BY dist ASC")
-        query += " FROM ivoa.obscore"
-        for i, term in enumerate(query_terms):
-            if i == 0:
-                query += f" WHERE {term}"
-            else:
-                query += f" AND {term}"
+            x = json.loads(q['target_name'].translate(transtable))
+            terms = []
+            for src in x:
+                terms.append(f"(target_name LIKE '{src}')")
+            query_terms.append("(" + " OR ".join(terms) + ")")
 
+        if q['radius'] != "":
+            s_ra = self.ra_to_deg(q['s_ra'])
+            s_dec = self.dec_to_deg(q['s_dec'])
+            s_ra = float(q['radius']) / 3600
+            query += f", DISTANCE(POINT('ICRS', {s_ra}, {s_dec}), POINT('ICRS', s_ra, s_dec)) AS dist"
+            query_terms.append(f"(1=CONTAINS(POINT('ICRS', {s_ra}, {s_dec}), CIRCLE('ICRS', s_ra, s_dec, {s_ra}))) ORDER BY dist ASC")
+        query += " FROM ivoa.obscore WHERE " + " AND ".join(query_terms)
+        logger.warning(q) 
+        logger.warning('query = ' + query) 
         result = service.search(query)
         response = []
         for rec in result:

@@ -8,18 +8,20 @@ export interface ExpListInterface {
  }
 
 export interface SearchInterface {
-  exp?: string;
-  source?: string;
-  ra?: string;
-  dec?: string;
-  radius?: string;
+  obs_id?: string;
+  target_name?: string[];
+  band?: string[];
+  s_ra?: string;
+  s_dec?: string;
+  radius?: number;
 }
 
 export interface SearchResult {
-   exp: string; 
-   source: string; 
-   ra: string;
-   dec: string;
+   obs_id: string; 
+   target_name: string; 
+   s_ra: string;
+   s_dec: string;
+   distance: string;
 }
 export interface SearchResultInterface extends Array<SearchResult>{}
 
@@ -37,14 +39,30 @@ export async function requestAPI<T>(
 ): Promise<T> {
   // Make request to Jupyter API
   const settings = ServerConnection.makeSettings();
+  const searchParams = new URLSearchParams();
+  Object.entries(search).forEach(([key, val]) => {
+    if ((Array.isArray(val)) && (val.length > 0)) {
+      searchParams.append(key, JSON.stringify(val));
+    } else if (typeof val == "number") {
+      searchParams.append(key, String(val));
+    } else if (val != "") {
+      searchParams.append(key, val);
+    }
+  });
+  let searchString : string = searchParams.toString();
+
   const requestUrl = URLExt.join(
     settings.baseUrl,
     'EVN-Archive', // API Namespace
-    endPoint
+    endPoint,
+    (searchString == "") ? "" : "?" + searchString
   );
 
   let response: Response;
   try {
+    console.log('requrl = ', requestUrl);
+    console.log('init = ', init);
+    console.log('settings = ', settings);
     response = await ServerConnection.makeRequest(requestUrl, init, settings);
   } catch (error) {
     throw new ServerConnection.NetworkError(error);
