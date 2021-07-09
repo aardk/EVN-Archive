@@ -4,13 +4,14 @@ import os
 from notebook.base.handlers import APIHandler
 from notebook.utils import url_path_join
 from urllib.request import urlretrieve
-from urllib.parse import urlparse
 import pathlib
 import numpy as np
 
 import tornado
 import re
 import pyvo
+import requests
+from git import Repo, InvalidGitRepositoryError
 
 import logging
 logger = logging.getLogger()
@@ -109,39 +110,56 @@ class SearchHandler(APIHandler):
             response.append(row)
         self.finish(json.dumps(response))
             
+class GetNotebookListHandler(APIHandler):
+    # The following decorator should be present on all verb methods (head, get, post, 
+    # patch, put, delete, options) to ensure only authorized user can request the 
+    # Jupyter server
+    @tornado.web.authenticated
+    def get(self):
+        q = { 'obs_id': self.get_query_argument('obs_id', default='')}
+        results = []
+        logger.warning(f'GetNotebookListHandler: q = {q}')
+        if q['obs_id'] != '':
+            url = f"http://localhost:3000/api/v1/repos/EVN/{q['obs_id']}/contents"
+            response = requests.get(url)
+            logger.warning(f'GetNotebookListHandler: url = {url}, response = {response}')
+            if response:
+                contents = response.json()
+                logger.warning(contents);
+                for rec in contents:
+                    name = rec['name']
+                    if name.endswith(".ipynb"):
+                        results.append({'notebook': name, 'size': rec['size']})
+        self.finish(json.dumps(results))
+
 class GetExpHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post, 
     # patch, put, delete, options) to ensure only authorized user can request the 
     # Jupyter server
     @tornado.web.authenticated
     def get(self):
-        # Get list of available experiments and sources from VO and send results to client.
-        service = pyvo.dal.TAPService('http://evn-vo.jive.eu/tap')
-        results = service.search("SELECT target_name, obs_id FROM ivoa.obscore")
-        #expList = sorted([x.decode() for x in set(results.getcolumn('obs_id'))])
-        #srcList = sorted([x.decode() for x in set(results.getcolumn('target_name'))])
-        expList = sorted([x for x in set(results.getcolumn('obs_id'))])
-        srcList = sorted([x for x in set(results.getcolumn('target_name'))])
-        response = {'exp': expList, 'src': srcList}
-        self.finish(json.dumps(response))
-        ### TEST Code ; fetch experiment
-        EXP = 'N11L3'
-        path = os.path.join(os.path.expanduser('~'), 'work', EXP)
-        os.makedirs(path, mode=0o775, exist_ok=True)
-        result = service.search(f"SELECT * FROM ivoa.obscore WHERE obs_id = '{EXP}'")
-        dataobj = result[0].getdataobj()
-        #urls = [f.decode() for f in dataobj.getcolumn('access_url').data]
-        urls = [f for f in dataobj.getcolumn('access_url').data]
-        for url in urls:
-            filename = pathlib.Path(urlparse(url).path).name 
-            f = os.path.join(path, filename)
+        q = { 'obs_id': self.get_query_argument('obs_id', default=''),
+              'notebook': self.get_query_argument('notebook', default='')}
+        results = {}
+        if (q['obs_id'] != "") and (q['notebook'] != ""):
+            path = os.path.join(os.path.expanduser('~'), 'work', q['obs_id'])
+            os.makedirs(path, mode=0o775, exist_ok=True)
+            url = f"http://localhost:3000/EVN/{q['obs_id']}/raw/branch/master/{q['notebook']}"
+            f = os.path.join(path, q['notebook'])
+            # If notebook already exists append _[1-9][0-9]* to filename
+            rev = 0
+            name, ext = os.path.splitext('notebook')
+            while os.path.exists(f):
+                rev += 1
+                f = name + f"_{rev}" + ext
             try:
+                logging.error(f"fetch '{f}' from '{url}'")
                 urlretrieve(url, f)
+                os.chmod(f, 0o664)
+                results = {'notebook': f}
             except HTTPError:
                 logging.error(f"Error: Unable to fetch url : '{url}'")
-            os.chmod(f, 0o664)
-
-        ## End of test code
+        self.finish(json.dumps(results))
 
 def setup_handlers(web_app):
     host_pattern = ".*$"
@@ -152,6 +170,9 @@ def setup_handlers(web_app):
 
     route_pattern = url_path_join(base_url, "EVN-Archive", "search")
     handlers.append((route_pattern, SearchHandler))
+
+    route_pattern = url_path_join(base_url, "EVN-Archive", "get_notebook_list")
+    handlers.append((route_pattern, GetNotebookListHandler))
 
     route_pattern = url_path_join(base_url, "EVN-Archive", "get_exp")
     handlers.append((route_pattern, GetExpHandler))

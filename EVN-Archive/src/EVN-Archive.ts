@@ -14,6 +14,7 @@ export interface SearchInterface {
   s_ra?: string;
   s_dec?: string;
   radius?: number;
+  notebook?: string;
 }
 
 export interface SearchResult {
@@ -21,7 +22,9 @@ export interface SearchResult {
    target_name: string; 
    s_ra: string;
    s_dec: string;
-   distance: string;
+   distance?: string;
+   notebook?: string;
+   size?: string;
 }
 export interface SearchResultInterface extends Array<SearchResult>{}
 

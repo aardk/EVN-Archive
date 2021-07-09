@@ -4,7 +4,7 @@ import { ExpListInterface } from './EVN-Archive';
 import { SearchInterface } from './EVN-Archive';
 import { requestAPI } from './EVN-Archive';
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
@@ -18,6 +18,7 @@ const EVNComponent = (
       exp_list: Option[];
       src_list: Option[]
       bands: Option[];
+      jupyter: JupyterFrontEnd;
     }): JSX.Element => {
     const [results, setResults] = useState([])
 
@@ -145,14 +146,35 @@ const EVNComponent = (
   </Form>
   </Formik>
     <MaterialTable
-          columns={[
-            { title: 'Adı', field: 'name' },
-            { title: 'Soyadı', field: 'surname' },
-            { title: 'Doğum Yılı', field: 'birthYear', type: 'numeric' },
-            { title: 'Doğum Yeri', field: 'birthCity', lookup: { 34: 'İstanbul', 63: 'Şanlıurfa' } }
+          actions={[{
+            icon: 'save_alt',
+            tooltip: 'Open notebook',
+            onClick: (event, rowData) => {
+            console.log('Find nb for:', rowData.obs_id); 
+            requestAPI<any>('get_notebook_list', {}, {obs_id: rowData.obs_id})
+                .then(search_result => {
+                    console.log('notebooks:', search_result);
+                    requestAPI<any>('get_exp', {}, {obs_id: rowData.obs_id, notebook: search_result[0].notebook})
+                    .then(nb_results => {
+                        console.log('nb_results:', nb_results);
+                        const { commands } = props.jupyter;
+                        commands.execute('docmanager:open', {
+                                          path: '/' + nb_results.notebook
+                                        });
+                    });
+                });
+              } 
+            }
           ]}
-          data={[{ name: 'Mehmet', surname: 'Baran', birthYear: 1987, birthCity: 63 }]}
-          title="Demo Title"
+          columns={[
+            { title: 'Experiment', field: 'obs_id' },
+            { title: 'Source', field: 'target_name' },
+            { title: 'Ra', field: 's_ra'},
+            { title: 'Dec', field: 's_dec'},
+            { title: 'Exp. time', field: 't_exptime'},
+            { title: 'Distance', field: 'dist'} ]}
+          data={results}
+          title="Search results"
         /> 
    </div>
   );
@@ -203,6 +225,7 @@ export class EVNWidget extends ReactWidget {
       exp_list = {this.exp_list}
       src_list = {this.src_list}
       bands = {this.bands}
+      jupyter = {this.theAPP}
     />
     )
   }
