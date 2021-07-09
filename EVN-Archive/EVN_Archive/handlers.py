@@ -142,13 +142,13 @@ class GetExpHandler(APIHandler):
               'notebook': self.get_query_argument('notebook', default='')}
         results = {}
         if (q['obs_id'] != "") and (q['notebook'] != ""):
-            path = os.path.join(os.path.expanduser('~'), 'work', q['obs_id'])
+            path = os.path.join('work', q['obs_id'])
             os.makedirs(path, mode=0o775, exist_ok=True)
             url = f"http://localhost:3000/EVN/{q['obs_id']}/raw/branch/master/{q['notebook']}"
             f = os.path.join(path, q['notebook'])
             # If notebook already exists append _[1-9][0-9]* to filename
             rev = 0
-            name, ext = os.path.splitext('notebook')
+            name, ext = os.path.splitext(f)
             while os.path.exists(f):
                 rev += 1
                 f = name + f"_{rev}" + ext

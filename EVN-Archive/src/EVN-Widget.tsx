@@ -159,7 +159,7 @@ const EVNComponent = (
                         console.log('nb_results:', nb_results);
                         const { commands } = props.jupyter;
                         commands.execute('docmanager:open', {
-                                          path: '/' + nb_results.notebook
+                                          path: nb_results.notebook
                                         });
                     });
                 });
