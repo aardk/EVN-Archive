@@ -11,9 +11,9 @@ import * as Yup from 'yup';
 import {FormikSelect, Option} from './FormikSelect';
 import { OptionsType } from "react-select";
 
-import MaterialTable from 'material-table';
 import Grid from '@material-ui/core/Grid';
 import Divider from '@material-ui/core/Divider';
+import MaterialTable from 'material-table';
 
 const EVNComponent = (
   props: {
