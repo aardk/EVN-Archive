@@ -12,6 +12,8 @@ import {FormikSelect, Option} from './FormikSelect';
 import { OptionsType } from "react-select";
 
 import MaterialTable from 'material-table';
+import Grid from '@material-ui/core/Grid';
+import Divider from '@material-ui/core/Divider';
 
 const EVNComponent = (
   props: {
@@ -22,13 +24,8 @@ const EVNComponent = (
     }): JSX.Element => {
     const [results, setResults] = useState([])
 
-    const outerdiv = { width: '610px' }
-    const innersmalldiv = { width: '200px', display: 'inline-block'}
-    const innerbigdiv = { width: '300px', display: 'inline-block'}
-
     return (
-//      <div style = {{ max-width: '300px', display: 'flex', flex-wrap: 'wrap' }}>
-  <div style = { outerdiv }>
+  <div>
   <Formik
     initialValues = {{ obs_id: '',
                        target_name: [],
@@ -52,7 +49,8 @@ const EVNComponent = (
          }}
   >
   <Form>
-      <div style = { innersmalldiv}>
+    <Grid container>
+      <Grid item xs>
         <label htmlFor="obs_id">Experiment</label>
         <Field
           className = 'FormikSelect'
@@ -63,8 +61,8 @@ const EVNComponent = (
           isMulti = {false}
         />
         <ErrorMessage name="obs_id" />
-      </div>
-      <div style = { innersmalldiv }>
+      </Grid>
+      <Grid item xs>
         <label htmlFor="taget_name">Source</label>
         <Field
           className = 'FormikSelect'
@@ -75,8 +73,8 @@ const EVNComponent = (
           isMulti = {true}
         />
       <ErrorMessage name="target_name" />
-      </div>
-      <div style = { innersmalldiv }>
+      </Grid>
+      <Grid item xs>
         <label htmlFor="band">Observing Band</label>
         <Field
           className = 'FormikSelect'
@@ -87,14 +85,18 @@ const EVNComponent = (
           isMulti = {true}
         />
       <ErrorMessage name="band" />
-      </div>
+      </Grid>
 
-      <div style = { innerbigdiv } >
+      <Grid item xs={12}>
         <button type = "submit"> SEARCH </button>
         <ErrorMessage name="submit" />
-      </div>
+      </Grid>
+    </Grid>
   </Form>
   </Formik>
+  <br />
+  <Divider />
+  <br />
   <Formik
     initialValues = {{ s_ra: '',
                        s_dec: '',
@@ -115,36 +117,42 @@ const EVNComponent = (
          }}
   >
   <Form>
-      <div style = { innersmalldiv }>
-        <label htmlFor="s_ra">Right Ascension</label>
+    <Grid container>
+      <Grid item xs={3}>
+        <label htmlFor="s_ra">Right Ascension     </label>
         <Field
         name="s_ra"
         type="text"
         />
       <ErrorMessage name="s_ra" />
-      </div>
-      <div style = { innersmalldiv }>
-        <label htmlFor="s_dec">Declination</label>
+      </Grid>
+      <Grid item xs={3}>
+        <label htmlFor="s_dec">Declination        </label>
         <Field
           name="s_dec"
           type="text"
         />
       <ErrorMessage name="s_dec" />
-      </div>
-      <div style = { innersmalldiv }>
+      </Grid>
+      <Grid item xs={3}>
         <label htmlFor="radius">Radius [arcseconds]</label>
           <Field
             name="radius"
             type="number"
            />
       <ErrorMessage name="radius" />
-      </div>
-      <div style = { innersmalldiv } >
+      </Grid>
+      <Grid item xs={12}>
         <button type = "submit"> SEARCH </button>
         <ErrorMessage name="submit" />
-      </div>
+      </Grid>
+    </Grid>
   </Form>
   </Formik>
+  <br />
+  <br />
+  <Grid container>
+    <Grid item xs={12}>
     <MaterialTable
           actions={[{
             icon: 'save_alt',
@@ -176,6 +184,8 @@ const EVNComponent = (
           data={results}
           title="Search results"
         /> 
+      </Grid>
+    </Grid>
    </div>
   );
 };
