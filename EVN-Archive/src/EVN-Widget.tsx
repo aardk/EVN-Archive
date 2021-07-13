@@ -58,6 +58,7 @@ const EVNComponent = (
           component = {FormikSelect}
           placeholder = "Experiment code"
           options = { props.exp_list }
+          isCreatable = {true}
           isMulti = {false}
         />
         <ErrorMessage name="obs_id" />
@@ -70,6 +71,7 @@ const EVNComponent = (
           component = {FormikSelect}
           placeholder = "Source name"
           options = { props.src_list }
+          isCreatable = {true}
           isMulti = {true}
         />
       <ErrorMessage name="target_name" />
