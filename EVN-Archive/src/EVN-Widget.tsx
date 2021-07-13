@@ -179,8 +179,8 @@ const EVNComponent = (
             { title: 'Source', field: 'target_name' },
             { title: 'Ra', field: 's_ra'},
             { title: 'Dec', field: 's_dec'},
-            { title: 'Exp. time', field: 't_exptime'},
-            { title: 'Distance', field: 'dist'} ]}
+            { title: 'Exp. time [s]', field: 't_exptime'},
+            { title: 'Distance [deg]', field: 'dist'} ]}
           data={results}
           title="Search results"
         /> 
