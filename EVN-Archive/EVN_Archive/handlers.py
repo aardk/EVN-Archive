@@ -46,9 +46,6 @@ class ExpListHandler(APIHandler):
 
 
 class SearchHandler(APIHandler):
-    # The following decorator should be present on all verb methods (head, get, post, 
-    # patch, put, delete, options) to ensure only authorized user can request the 
-    # Jupyter server
     def ra_to_deg(self, ra):
         h,m,sec = [float(x) for x in re.split(':|h|m|s', ra)[:3]]
         return (h + m / 60 + sec / 3600) * 360 / 24
@@ -57,6 +54,26 @@ class SearchHandler(APIHandler):
         d,m,sec = [float(x) for x in re.split(':|d|\'|\"', dec)[:3]]
         return d + m / 60 + sec / 3600
 
+    def deg_to_ra(self, deg):
+        while deg < 0:
+            deg += 360
+        ra = deg / 15
+        hours = int(ra)
+        m = (ra - hours) * 60
+        minutes = int(m)
+        seconds = 60 * (m - minutes)
+        return f"{hours:02d}h{minutes:02d}m{seconds:06.3f}s"
+
+    def deg_to_dec(self, deg):
+        degrees = int(deg)
+        m = abs(deg - degrees) * 60
+        minutes = int(m)
+        seconds = 60 * (m - minutes)
+        return f"{degrees:02d}d{minutes:02d}'{seconds:06.3f}\""
+
+    # The following decorator should be present on all verb methods (head, get, post, 
+    # patch, put, delete, options) to ensure only authorized user can request the 
+    # Jupyter server
     @tornado.web.authenticated
     def get(self):
         # Get list of available experiments and sources from VO and send results to client.
@@ -97,9 +114,13 @@ class SearchHandler(APIHandler):
             row = {}
             for key in rec:
                 val = rec[key]
-                # In some versions of pyvo queries yield strings whereas 
-                # in others it is byte arrays
-                if type(val) == bytes:
+                if (key == 's_ra'):
+                    row[key] = self.deg_to_ra(val)
+                elif (key == 's_dec'):
+                    row[key] = self.deg_to_dec(val)
+                elif type(val) == bytes:
+                    # In some versions of pyvo queries yield strings whereas 
+                    # in others it is byte arrays
                     row[key] = val.decode()
                 elif type(val) == np.float32:
                     row[key] = float(val)
