@@ -141,7 +141,7 @@ class GetNotebookListHandler(APIHandler):
         results = []
         logger.warning(f'GetNotebookListHandler: q = {q}')
         if q['obs_id'] != '':
-            url = f"http://localhost:3000/api/v1/repos/EVN/{q['obs_id']}/contents"
+            url = f"http://gitea:3000/api/v1/repos/EVN/{q['obs_id']}/contents"
             response = requests.get(url)
             logger.warning(f'GetNotebookListHandler: url = {url}, response = {response}')
             if response:
@@ -165,7 +165,7 @@ class GetExpHandler(APIHandler):
         if (q['obs_id'] != "") and (q['notebook'] != ""):
             path = os.path.join('work', q['obs_id'])
             os.makedirs(path, mode=0o775, exist_ok=True)
-            url = f"http://localhost:3000/EVN/{q['obs_id']}/raw/branch/master/{q['notebook']}"
+            url = f"http://gitea:3000/EVN/{q['obs_id']}/raw/branch/master/{q['notebook']}"
             f = os.path.join(path, q['notebook'])
             # If notebook already exists append _[1-9][0-9]* to filename
             rev = 0
@@ -177,7 +177,8 @@ class GetExpHandler(APIHandler):
                 logging.error(f"fetch '{f}' from '{url}'")
                 urlretrieve(url, f)
                 os.chmod(f, 0o664)
-                results = {'notebook': f}
+                # strip leading work/ because that is the JupyterLab root
+                results = {'notebook': f[5:]}
             except HTTPError:
                 logging.error(f"Error: Unable to fetch url : '{url}'")
         self.finish(json.dumps(results))
