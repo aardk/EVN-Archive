@@ -18,3 +18,4 @@ RUN cd /usr/local/EVN-Archive \
 COPY start_jupyter.sh /usr/bin/
 
 USER jupyter
+ENV SHELL=/bin/bash
