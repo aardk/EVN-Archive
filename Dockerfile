@@ -1,4 +1,4 @@
-FROM penngwyn/jupytercasa:casa-6.1
+FROM penngwyn/jupytercasa:casa-6.3
 CMD ["xvfb-run", "jupyter", "notebook"]
 
 USER root

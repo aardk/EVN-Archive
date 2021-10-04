@@ -22,7 +22,7 @@ const EVNComponent = (
       bands: Option[];
       jupyter: JupyterFrontEnd;
     }): JSX.Element => {
-    const [results, setResults] = useState([])
+    const [results, setResults] = useState([]);
 
     return (
   <div>
