@@ -102,9 +102,9 @@ class SearchHandler(APIHandler):
         if q['radius'] != "":
             s_ra = self.ra_to_deg(q['s_ra'])
             s_dec = self.dec_to_deg(q['s_dec'])
-            s_ra = float(q['radius']) / 3600
+            s_radius = float(q['radius']) / 3600
             query += f", DISTANCE(POINT('ICRS', {s_ra}, {s_dec}), POINT('ICRS', s_ra, s_dec)) AS dist"
-            query_terms.append(f"(1=CONTAINS(POINT('ICRS', {s_ra}, {s_dec}), CIRCLE('ICRS', s_ra, s_dec, {s_ra}))) ORDER BY dist ASC")
+            query_terms.append(f"(1=CONTAINS(POINT('ICRS', {s_ra}, {s_dec}), CIRCLE('ICRS', s_ra, s_dec, {s_radius}))) ORDER BY dist ASC")
         query += " FROM ivoa.obscore WHERE " + " AND ".join(query_terms)
         logger.warning(q) 
         logger.warning('query = ' + query) 
