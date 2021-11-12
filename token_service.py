@@ -17,7 +17,7 @@ def get_client():
     return ctrl['token_url'], client
 
 def get_token(token_url, client):
-    kcloak = OAuth2Session(client_id)
+    kcloak = OAuth2Session(client['client_id'])
     try:
         response = kcloak.refresh_token(token_url, AUTH_REFRESH_TOKEN, **client)
         return response['access_token']
