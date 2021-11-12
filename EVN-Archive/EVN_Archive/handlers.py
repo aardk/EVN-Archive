@@ -131,7 +131,7 @@ class SearchHandler(APIHandler):
             response.append(row)
         self.finish(json.dumps(response))
             
-class GetNotebookListHandler(APIHandler):
+class NotebookHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post, 
     # patch, put, delete, options) to ensure only authorized user can request the 
     # Jupyter server
@@ -139,11 +139,11 @@ class GetNotebookListHandler(APIHandler):
     def get(self):
         q = { 'obs_id': self.get_query_argument('obs_id', default='')}
         results = []
-        logger.warning(f'GetNotebookListHandler: q = {q}')
+        logger.warning(f'NotebookHandler (get): q = {q}')
         if q['obs_id'] != '':
             url = f"http://gitea:3000/api/v1/repos/EVN/{q['obs_id']}/contents"
             response = requests.get(url)
-            logger.warning(f'GetNotebookListHandler: url = {url}, response = {response}')
+            logger.warning(f'NotebookHandler (get): url = {url}, response = {response}')
             if response:
                 contents = response.json()
                 logger.warning(contents);
@@ -193,8 +193,8 @@ def setup_handlers(web_app):
     route_pattern = url_path_join(base_url, "EVN-Archive", "search")
     handlers.append((route_pattern, SearchHandler))
 
-    route_pattern = url_path_join(base_url, "EVN-Archive", "get_notebook_list")
-    handlers.append((route_pattern, GetNotebookListHandler))
+    route_pattern = url_path_join(base_url, "EVN-Archive", "notebooks")
+    handlers.append((route_pattern, NotebookHandler))
 
     route_pattern = url_path_join(base_url, "EVN-Archive", "get_exp")
     handlers.append((route_pattern, GetExpHandler))

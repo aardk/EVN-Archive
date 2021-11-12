@@ -161,7 +161,7 @@ const EVNComponent = (
             tooltip: 'Open notebook',
             onClick: (event, rowData) => {
             console.log('Find nb for:', rowData.obs_id); 
-            requestAPI<any>('get_notebook_list', {}, {obs_id: rowData.obs_id})
+            requestAPI<any>('notebooks', {}, {obs_id: rowData.obs_id})
                 .then(search_result => {
                     console.log('notebooks:', search_result);
                     requestAPI<any>('get_exp', {}, {obs_id: rowData.obs_id, notebook: search_result[0].notebook})
