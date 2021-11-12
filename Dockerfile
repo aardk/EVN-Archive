@@ -12,10 +12,12 @@ RUN cd /usr/local/EVN-Archive \
     && jlpm build \
     && jupyter labextension install . \
     && jupyter lab build
+RUN apt-get install -y sudo
 
-#COPY fix-xvfb-run.sh /tmp/
-#RUN /tmp/fix-xvfb-run.sh
-COPY start_jupyter.sh /usr/bin/
+RUN pip install requests_oauthlib
+RUN echo "jupyter ALL = (ALL) NOPASSWD:SETENV: /usr/bin/token_service.py" >/etc/sudoers.d/jupyter-user \
+    && chmod 0440 /etc/sudoers.d/jupyter-user
+COPY start_jupyter.sh token_service.py /usr/bin/
 
 USER jupyter
 ENV SHELL=/bin/bash
