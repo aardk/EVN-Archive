@@ -8,7 +8,9 @@ import { reactIcon } from '@jupyterlab/ui-components';
 
 import { requestAPI } from './EVN-Archive';
 
-import { EVNWidget} from './EVN-Widget';
+import { EVNWidget } from './EVN-Widget';
+
+import { SubmitNotebookButton } from './Submit-Notebook';
 
 namespace CommandIDs {
   export const create = 'create-react-widget';
@@ -59,6 +61,9 @@ const extension: JupyterFrontEndPlugin<void> = {
           `The EVN_Archive server extension appears to be missing.\n${reason}`
         );
       });
+      console.log("Adding button!")
+      app.docRegistry.addWidgetExtension('Notebook', new SubmitNotebookButton());
+      console.log("Added button?")
   }
 };
 

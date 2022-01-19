@@ -7,6 +7,11 @@ export interface ExpListInterface {
     src: string[];
  }
 
+export interface SubmitNotebookInterface {
+    exp: string[];
+    path: string[];
+ }
+
 export interface SearchInterface {
   obs_id?: string;
   target_name?: string[];
