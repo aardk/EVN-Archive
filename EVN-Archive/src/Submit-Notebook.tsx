@@ -50,21 +50,7 @@ export function NotebookSubmitComponent(
   return (
    <div>
     <Button
-      //className = {
-      //  props.className
-      //    ? props.className + ' jp-ToolbarButtonComponent'
-       //   : 'jp-ToolbarButtonComponent'
-      //}
-      //aria-pressed = {props.pressed}
-      //aria-disabled = {props.enabled === false}
-      //disabled = {props.enabled === false}
-      //onClick = {props.actualOnClick ?? false ? handleClick : undefined}
-      onClick = {handleOpen}
-      //onMouseDown = {
-      //  !(props.actualOnClick ?? false) ? handleMouseDown : undefined
-     // }
-      //onKeyDown = {handleKeyDown}
-      //title = {getTooltip()}
+      onClick = { handleOpen }
     >
       {props.label && (
         <span className = "jp-ToolbarButtonComponent-label">{props.label}</span>
