@@ -1,4 +1,4 @@
-FROM penngwyn/jupytercasa:casa-6.3
+FROM penngwyn/jupytercasa:casa-6.4
 CMD ["xvfb-run", "jupyter", "notebook"]
 
 USER root
@@ -6,8 +6,9 @@ USER root
 RUN pip install GitPython
 COPY EVN-Archive /usr/local/EVN-Archive
 RUN cd /usr/local/EVN-Archive \
-    && pip install -e . \
+    && pip install . \
     && jupyter serverextension enable --py EVN_Archive --sys-prefix \
+    && jlpm install \
     && jlpm \
     && jlpm build \
     && jupyter labextension install . \
