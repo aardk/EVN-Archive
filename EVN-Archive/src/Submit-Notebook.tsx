@@ -1,105 +1,150 @@
 import React from 'react'
-import Alert from '@mui/material/Alert';
-import Modal from '@mui/material/Modal';
+import Modal from '@material-ui/core/Modal';
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+
 import { IDisposable, DisposableDelegate } from '@lumino/disposable';
 
-import { ToolbarButton } from '@jupyterlab/apputils';
+import { ReactWidget } from '@jupyterlab/apputils';
 
 import { DocumentRegistry } from '@jupyterlab/docregistry';
-import { ToolbarButtonComponent } from '@jupyterlab/apputils'; 
-import { LabIcon } from '@jupyterlab/ui-components';
-import {
-  NotebookActions,
-  NotebookPanel,
-  INotebookModel,
-} from '@jupyterlab/notebook';
+
+import { NotebookActions, NotebookPanel, INotebookModel } from '@jupyterlab/notebook';
+
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+//import Select from 'react-select';
+import { FormikSelect, Option } from './FormikSelect';
+import { requestAPI, ExpListInterface } from './EVN-Archive';
+import * as Yup from 'yup';
+
+export interface SubmitWidgetInterface { 
+  local_path: string;
+  exp_list?: Option[];
+  className?: string; 
+  label?: string; 
+  tooltip?: string; 
+}
 
 export function NotebookSubmitComponent(
-  props: ToolbarButtonComponent.IProps
+  props: SubmitWidgetInterface
 ): JSX.Element {
-  // In some browsers, a button click event moves the focus from the main
-  // content to the button (see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#Clicking_and_focus).
-  // We avoid a click event by calling preventDefault in mousedown, and
-  // we bind the button action to `mousedown`.
-  const handleMouseDown = (event: React.MouseEvent) => {
-    // Fire action only when left button is pressed.
-    if (event.button === 0) {
-      event.preventDefault();
-      props.onClick?.();
-    }
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    const { key } = event;
-    if (key === 'Enter' || key === ' ') {
-      props.onClick?.();
-    }
-  };
-
-  const handleClick = (event: React.MouseEvent) => {
-    if (event.button === 0) {
-      props.onClick?.();
-    }
-  };
-
-  const getTooltip = () => {
-    if (props.enabled === false && props.disabledTooltip) {
-      return props.disabledTooltip;
-    } else if (props.pressed && props.pressedTooltip) {
-      return props.pressedTooltip;
-    } else {
-      return props.tooltip || props.iconLabel;
-    }
-  };
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
-    <button
-      className={
-        props.className
-          ? props.className + ' jp-ToolbarButtonComponent'
-          : 'jp-ToolbarButtonComponent'
-      }
-      aria-pressed={props.pressed}
-      aria-disabled={props.enabled === false}
-      disabled={props.enabled === false}
-      onClick={props.actualOnClick ?? false ? handleClick : undefined}
-      onMouseDown={
-        !(props.actualOnClick ?? false) ? handleMouseDown : undefined
-      }
-      onKeyDown={handleKeyDown}
-      title={getTooltip()}
-      //minimal
+   <div>
+    <Button
+      //className = {
+      //  props.className
+      //    ? props.className + ' jp-ToolbarButtonComponent'
+       //   : 'jp-ToolbarButtonComponent'
+      //}
+      //aria-pressed = {props.pressed}
+      //aria-disabled = {props.enabled === false}
+      //disabled = {props.enabled === false}
+      //onClick = {props.actualOnClick ?? false ? handleClick : undefined}
+      onClick = {handleOpen}
+      //onMouseDown = {
+      //  !(props.actualOnClick ?? false) ? handleMouseDown : undefined
+     // }
+      //onKeyDown = {handleKeyDown}
+      //title = {getTooltip()}
     >
-      {(props.icon || props.iconClass) && (
-        <LabIcon.resolveReact
-          icon={props.pressed ? props.pressedIcon : props.icon}
-          /*iconClass={
-            // add some extra classes for proper support of icons-as-css-background
-            classes(props.iconClass, 'jp-Icon')
-          }*/
-          className="jp-ToolbarButtonComponent-icon"
-          tag="span"
-          stylesheet="toolbarButton"
-        />
-      )}
       {props.label && (
-        <span className="jp-ToolbarButtonComponent-label">{props.label}</span>
+        <span className = "jp-ToolbarButtonComponent-label">{props.label}</span>
       )}
-    </button>
+    </Button>
+    <Modal
+      open = {open}
+      onClose = {handleClose}
+      aria-labelledby = "modal-modal-title"
+      aria-describedby = "modal-modal-description"
+    >
+      <Box sx = {style}>
+      <Formik
+	initialValues = {{ obs_id: '',
+                           local_path: props.local_path,
+			   description: '' }}
+	validationSchema = {Yup.object({
+	  obs_id: Yup.string(),
+	  description: Yup.string() })}
+	onSubmit = {(values, { setSubmitting }) => {
+		 console.log('values =', values);
+		 console.log('obs_id =', values.obs_id);
+                 requestAPI<any>('submit', {}, {obs_id: values.obs_id, 
+                                                local_path: values.local_path,
+                                                description: "Dummy_de_mummy"})
+//                                                description: values.description})
+                 .then(response => {
+                    console.log('Submit response:', response);
+		 })
+                 .catch((error) => {
+                   console.error('Error:', error);
+                 });
+  		 setSubmitting(false);
+	}}
+      >
+      <Form>
+	<Grid container>
+          <Grid item xs>
+	    <label htmlFor="obs_id">Experiment</label>
+	    <Field
+	      className = 'FormikSelect'
+	      name = 'obs_id'
+	      component = { FormikSelect }
+	      placeholder = "Experiment code"
+	      options = { props.exp_list }
+              isCreatable = { false }
+	      isMulti = { false }
+	    />
+	    <ErrorMessage name="obs_id" />
+          </Grid>
+          <Grid item xs={12}>
+	    <label htmlFor="description">Notebook description</label>
+	    <Field
+	      className = 'TextareaAutosize'
+	      name = 'description'
+	      component = { TextareaAutosize }
+	      placeholder = "Notebook description"
+              minRows = {5}
+              style = {{ width: 400 }}
+            />
+	  <ErrorMessage name="description" />
+          </Grid>
+	</Grid>
+	<Grid item xs={12}>
+	  <button type = "submit"> SUBMIT </button>
+	  <ErrorMessage name="submit" />
+	</Grid>
+      </Form>
+      </Formik>
+      </Box>
+    </Modal>
+   </div>
   );
 }
 
-/**
- * Note that ToolbarButton extends ReactWidget
- */
-export class SubmitNotebookWidget extends ToolbarButton {
-  /**
-   * Creates a toolbar button
-   * @param props props for underlying `ToolbarButton` component
-   */
-  //constructor(private props: ToolbarButtonComponent.IProps = {}) {
-  constructor(props: ToolbarButtonComponent.IProps = {}) {
-    super(props);
+export class SubmitNotebookWidget extends ReactWidget {
+  private _props: SubmitWidgetInterface;
+
+  constructor(props: SubmitWidgetInterface) {
+    super();
     this._props = props
   }
 
@@ -107,19 +152,29 @@ export class SubmitNotebookWidget extends ToolbarButton {
     return (
       <NotebookSubmitComponent
        {...this._props}
-        pressed={this.pressed}
-        enabled={this.enabled}
-        onClick={this.onClick}
+        //pressed = {this.pressed}
+        //enabled = {this.enabled}
+        //onClick = {this.onClick}
       />
     );
   }
-  private _props: ToolbarButtonComponent.IProps;
 }
 
 
 export class SubmitNotebookButton
   implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel>
 {
+  private exp_list : Option[];
+
+  constructor(allObs: ExpListInterface) {
+    let exp_list: Option[] = []
+    for (var exp of allObs.exp) {
+      let entry = { 'value': exp, 'label': exp };
+      exp_list.push(entry);
+    }
+    this.exp_list = exp_list;
+  }
+
   /**
    * Create a new extension for the notebook panel widget.
    *
@@ -132,15 +187,13 @@ export class SubmitNotebookButton
     context: DocumentRegistry.IContext<INotebookModel>
   ): IDisposable {
     console.log("Start createnew")
-    const submitNotebook = () => {
-      NotebookActions.clearAllOutputs(panel.content);
-    };
-    //const button = new SubmitNotebookWidget({
-    const button = new ToolbarButton({
+
+    const button = new SubmitNotebookWidget({
       className: 'submit-notebook-button',
       label: 'Submit notebook',
-      onClick: submitNotebook,
-      tooltip: 'Submit current notebook to the EVN archive'
+      tooltip: 'Submit current notebook to the EVN archive',
+      exp_list: this.exp_list,
+      local_path: context.localPath
     });
     panel.toolbar.insertItem(10, 'submitNotebook', button);
     console.log('file =' + context.localPath);

@@ -30,6 +30,7 @@ export const FormikSelect = ({
 }: FormikSelectProps) => {
   //const onChange = (option: ValueType<Option | Option[]>) => {
   const onChange = (option: ValueType<Option | Option[], boolean>) => {
+    console.log('field = ', field.name, ', onChange:', (option as Option).value)
     form.setFieldValue(
       field.name,
       isMulti
@@ -58,8 +59,8 @@ export const FormikSelect = ({
       onChange = {onChange}
       options = {options}
       isMulti = {isMulti}
-      menuPortalTarget = {document.body} 
-      menuPosition = {'fixed'}
+      //menuPortalTarget = {document.body} 
+      //menuPosition = {'fixed'}
     />
   );
 };

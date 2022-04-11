@@ -55,15 +55,17 @@ const extension: JupyterFrontEndPlugin<void> = {
             rank: 1
           });
         }
+        console.log("Adding button!")
+        // FIXME make Select value label in this .then, because now that gets created twice
+        app.docRegistry.addWidgetExtension('Notebook', new SubmitNotebookButton(exp_list));
+        //app.docRegistry.addWidgetExtension('Notebook', new SubmitNotebookButton());
+        console.log("Added button?")
       })
       .catch(reason => {
         console.error(
           `The EVN_Archive server extension appears to be missing.\n${reason}`
         );
       });
-      console.log("Adding button!")
-      app.docRegistry.addWidgetExtension('Notebook', new SubmitNotebookButton());
-      console.log("Added button?")
   }
 };
 

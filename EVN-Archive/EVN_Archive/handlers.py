@@ -11,6 +11,8 @@ import tornado
 import re
 import pyvo
 import requests
+import socket
+import struct
 from git import Repo, InvalidGitRepositoryError
 
 import logging
@@ -153,6 +155,43 @@ class NotebookHandler(APIHandler):
                         results.append({'notebook': name, 'size': rec['size']})
         self.finish(json.dumps(results))
 
+class SubmitHandler(APIHandler):
+    @tornado.web.authenticated
+    def get(self):
+        logger.warning(f'Entering SubmitHandler')
+        # Get fresh access token
+        sockfile = '/tmp/jupyter-auth'
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        sock.connect(sockfile)
+        q = struct.pack('i', 1)
+        sock.sendall(q)
+        n = struct.unpack('i', sock.recv(4))[0]
+        if n > 0:
+            token = sock.recv(n)
+        q = struct.pack('i', 1)
+        sock.sendall(q)
+        n = struct.unpack('i', sock.recv(4))[0]
+        if n > 0:
+            token = sock.recv(n)
+        sock.close()
+        local_path = os.path.join('/home/jupyter/work/',
+                self.get_query_argument('local_path', default=''))
+        filename = os.path.split(local_path)[1]
+        logger.warning(f'path = {local_path}, file = {filename}')
+        files = {"file": open(local_path, "rb")}
+        # FIXME return error if no token is received
+        body = {
+                'obs_id': self.get_query_argument('obs_id', default=''),
+                'description': self.get_query_argument('description', default=''),
+                'filename': filename,
+                'token': token
+                }
+        logger.warning(f'NotebookHandler (post): obs_id = {body["obs_id"]}, file = {local_path}')
+        url = f"http://usernotebooks:8888/"
+        response = requests.post(url, files = files, data = body)
+        #self.finish(json.dumps(response))
+        self.finish()
+
 class GetExpHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post, 
     # patch, put, delete, options) to ensure only authorized user can request the 
@@ -195,6 +234,9 @@ def setup_handlers(web_app):
 
     route_pattern = url_path_join(base_url, "EVN-Archive", "notebooks")
     handlers.append((route_pattern, NotebookHandler))
+
+    route_pattern = url_path_join(base_url, "EVN-Archive", "submit")
+    handlers.append((route_pattern, SubmitHandler))
 
     route_pattern = url_path_join(base_url, "EVN-Archive", "get_exp")
     handlers.append((route_pattern, GetExpHandler))
