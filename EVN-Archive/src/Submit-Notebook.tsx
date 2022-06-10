@@ -84,6 +84,7 @@ export function NotebookSubmitComponent(
                    console.error('Error:', error);
                  });
   		 setSubmitting(false);
+                 setOpen(false);
 	}}
       >
       <Form>
