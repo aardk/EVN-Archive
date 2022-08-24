@@ -7,6 +7,12 @@ export interface ExpListInterface {
     src: string[];
  }
 
+export interface SubmitNotebookInterface {
+    obs_id?: string;
+    description?: string;
+    local_path?: string;
+ }
+
 export interface SearchInterface {
   obs_id?: string;
   target_name?: string[];
@@ -38,7 +44,7 @@ export interface SearchResultInterface extends Array<SearchResult>{}
 export async function requestAPI<T>(
   endPoint = '',
   init: RequestInit = {},
-  search: SearchInterface = {}
+  search: SearchInterface | SubmitNotebookInterface = {}
 ): Promise<T> {
   // Make request to Jupyter API
   const settings = ServerConnection.makeSettings();
@@ -82,6 +88,8 @@ export async function requestAPI<T>(
   }
 
   if (!response.ok) {
+    console.log("response: ", response)
+    console.log("data: ", data)
     throw new ServerConnection.ResponseError(response, data.message || data);
   }
 

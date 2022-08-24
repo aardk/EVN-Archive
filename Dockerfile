@@ -3,11 +3,12 @@ CMD ["xvfb-run", "jupyter", "notebook"]
 
 USER root
 
-COPY EVN-Archive /usr/local/EVN-Archive
 RUN pip install GitPython
+COPY EVN-Archive /usr/local/EVN-Archive
 RUN cd /usr/local/EVN-Archive \
     && pip install . \
     && jupyter serverextension enable --py EVN_Archive --sys-prefix \
+    && jlpm install \
     && jlpm \
     && jlpm build \
     && jlpm install \
