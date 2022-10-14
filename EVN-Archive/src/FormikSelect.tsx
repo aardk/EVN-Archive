@@ -59,8 +59,8 @@ export const FormikSelect = ({
       onChange = {onChange}
       options = {options}
       isMulti = {isMulti}
-      //menuPortalTarget = {document.body} 
-      //menuPosition = {'fixed'}
+      menuPortalTarget = {document.body} 
+      menuPosition = {'fixed'}
     />
   );
 };
