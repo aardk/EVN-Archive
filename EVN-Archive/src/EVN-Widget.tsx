@@ -45,8 +45,8 @@ const EVNComponent = (
           console.log(search_result);
           setResults(search_result);
         })
-             setSubmitting(false);
-         }}
+        setSubmitting(false);
+    }}
   >
   <Form>
     <Grid container>
