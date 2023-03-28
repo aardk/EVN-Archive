@@ -4,6 +4,7 @@ CMD ["xvfb-run", "jupyter", "notebook"]
 USER root
 
 RUN pip install GitPython
+RUN pip install jupyterlab-git
 COPY EVN-Archive /usr/local/EVN-Archive
 RUN cd /usr/local/EVN-Archive \
     && pip install . \
