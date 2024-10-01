@@ -1,9 +1,9 @@
-import React from 'react'
-import Modal from '@material-ui/core/Modal';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
-import TextareaAutosize from '@material-ui/core/TextareaAutosize';
+import React from 'react';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import TextareaAutosize from '@mui/material/TextareaAutosize';
 
 import { IDisposable, DisposableDelegate } from '@lumino/disposable';
 

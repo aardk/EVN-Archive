@@ -25,62 +25,90 @@
     "url": "https://github.com/my_name/myextension.git"
   },
   "scripts": {
-    "build": "jlpm run build:lib",
-    "build:labextension": "cd EVN_Archive && rimraf labextension && mkdirp labextension && cd labextension && npm pack ../..",
-    "build:lib": "tsc",
-    "build:all": "jlpm run build:labextension",
-    "clean": "jlpm run clean:lib",
+    "build": "jlpm build:lib && jlpm build:labextension:dev",
+    "build:prod": "jlpm clean && jlpm build:lib:prod && jlpm build:labextension",
+    "build:labextension": "jupyter labextension build .",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:lib": "tsc --sourceMap",
+    "build:lib:prod": "tsc",
+    "clean": "jlpm clean:lib",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
-    "clean:labextension": "rimraf EVN_Archive/labextension",
-    "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
-    "eslint": "eslint . --ext .ts,.tsx --fix",
-    "eslint:check": "eslint . --ext .ts,.tsx",
-    "prepare": "jlpm run clean && jlpm run build",
-    "watch": "tsc -w"
+    "clean:lintcache": "rimraf .eslintcache .stylelintcache",
+    "clean:labextension": "rimraf EVN_Archive/labextension EVN_Archive/_version.py",
+    "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
+    "eslint": "jlpm eslint:check --fix",
+    "eslint:check": "eslint . --cache --ext .ts,.tsx",
+    "install:extension": "jlpm build",
+    "lint": "jlpm stylelint && jlpm prettier && jlpm eslint",
+    "lint:check": "jlpm stylelint:check && jlpm prettier:check && jlpm eslint:check",
+    "prettier": "jlpm prettier:base --write --list-different",
+    "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
+    "prettier:check": "jlpm prettier:base --check",
+    "stylelint": "jlpm stylelint:check --fix",
+    "stylelint:check": "stylelint --cache \"style/**/*.css\"",
+    "watch": "run-p watch:src watch:labextension",
+    "watch:src": "tsc -w --sourceMap",
+    "watch:labextension": "jupyter labextension watch ."
   },
   "dependencies": {
-    "dompurify": "^3.0.1",
-    "@date-io/core": "^2.13.1",
-    "html2canvas":  "^1.4.1",
-    "@jupyterlab/application": "^3.3.3",
-    "@jupyterlab/coreutils": "^5.3.3",
-    "@jupyterlab/launcher": "^3.3.3",
-    "@jupyterlab/notebook": "^3.3.3",
-    "@jupyterlab/services": "^6.3.3",
-    "@jupyterlab/ui-components": "^3.3.3",
-    "@lumino/widgets": "^1.37.2",
-    "material-table": "^1.69.3",
-    "@material-ui/core": "^4.12.4",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "@types/react-select": "^4.0.15",
-    "canvg": "^4.0.0",
-    "formik": "^2.2.9",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-select": "^4.3.1",
-    "yup": "^0.32.9"
+    "dompurify": "~3.1.7",
+    "@date-io/core": "~2.17.0",
+    "html2canvas":  "~1.4.1",
+    "@jupyterlab/application": "~4.2.5",
+    "@jupyterlab/coreutils": "~6.2.5",
+    "@jupyterlab/launcher": "~4.2.5",
+    "@jupyterlab/notebook": "~4.2.5",
+    "@jupyterlab/services": "~7.2.5",
+    "@jupyterlab/ui-components": "~4.2.5",
+    "@lumino/widgets": "~2.5.0",
+    "@material-table/core": "~6.4.4",
+    "@mui/material": "~6.1.1", 
+    "@emotion/react": "~11.13.3", 
+    "@emotion/styled": "~11.13.0",
+    "@types/react": "~18.3.10",
+    "@types/react-dom": "~18.3.0",
+    "@types/react-select": "~4.0.15",
+    "canvg": "~4.0.2",
+    "formik": "~2.4.6",
+    "react": "~18.3.1",
+    "react-dom": "~18.3.1",
+    "react-select": "~5.8.1",
+    "yup": "~1.4.0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.9.0",
-    "@typescript-eslint/parser": "^4.9.0",
-    "eslint": "^7.1.14",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-prettier": "^3.2.0",
-    "mkdirp": "^1.0.4",
-    "prettier": "2.2.1",
-    "rimraf": "^3.0.2",
-    "typescript": "~4.1.2"
+    "@jupyterlab/builder": "^4.2.5",
+    "@types/json-schema": "^7.0.15",
+    "@types/react": "^18.0.26",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "css-loader": "^7.1.2",
+    "eslint": "^9.11.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "mkdirp": "^3.0.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "source-map-loader": "^5.0.0",
+    "style-loader": "^4.0.0",
+    "stylelint": "^16.9.0",
+    "stylelint-config-prettier": "^9.0.5",
+    "stylelint-config-recommended": "^14.0.1",
+    "stylelint-config-standard": "^36.0.1",
+    "stylelint-prettier": "^5.0.2",
+    "typescript": "~5.6.2",
+    "yjs": "^13.6.19"
   },
   "resolutions": {
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "@lumino/widgets": "^1.37.2",
-    "typestyle": "^2.3.0"
   },
   "sideEffects": [
-    "style/*.css"
+    "style/*.css",
+    "style/index.js"
   ],
+  "styleModule": "style/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "jupyterlab": {
     "discovery": {
       "server": {
@@ -92,6 +120,85 @@
         }
       }
     },
-    "extension": true
+    "extension": true,
+    "outputDir": "EVN_Archive/labextension"
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "**/*.d.ts"
+  ],
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "project": "tsconfig.json",
+      "sourceType": "module"
+    },
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "rules": {
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          "selector": "interface",
+          "format": [
+            "PascalCase"
+          ],
+          "custom": {
+            "regex": "^I[A-Z]",
+            "match": true
+          }
+        }
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          "args": "none"
+        }
+      ],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-namespace": "off",
+      "@typescript-eslint/no-use-before-define": "off",
+      "@typescript-eslint/quotes": [
+        "error",
+        "single",
+        {
+          "avoidEscape": true,
+          "allowTemplateLiterals": false
+        }
+      ],
+      "curly": [
+        "error",
+        "all"
+      ],
+      "eqeqeq": "error",
+      "prefer-arrow-callback": "error"
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "none",
+    "arrowParens": "avoid",
+    "endOfLine": "auto"
+  },
+  "stylelint": {
+    "extends": [
+      "stylelint-config-recommended",
+      "stylelint-config-standard",
+      "stylelint-prettier/recommended"
+    ],
+    "rules": {
+      "property-no-vendor-prefix": null,
+      "selector-no-vendor-prefix": null,
+      "value-no-vendor-prefix": null
+    }
   }
 }

@@ -1,0 +1,5 @@
+{
+  "packageManager": "python",
+  "packageName": "EVN_Archive",
+  "uninstallInstructions": "Use your Python package manager (pip, conda, etc.) to uninstall the package EVN_Archive"
+}

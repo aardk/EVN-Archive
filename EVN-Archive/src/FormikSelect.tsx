@@ -4,7 +4,7 @@
 import { FieldProps } from "formik";
 import React from "react";
 import CreatableSelect from "react-select/creatable";
-import { OptionsType, ValueType } from "react-select";
+import { Options, OnChangeValue } from "react-select";
 
 export interface Option {
   label: string;
@@ -12,7 +12,7 @@ export interface Option {
 }
 
 interface FormikSelectProps extends FieldProps {
-  options: OptionsType<Option>;
+  options: Options<Option>;
   isCreatable?: boolean;
   isMulti?: boolean;
   className?: string;
@@ -29,7 +29,7 @@ export const FormikSelect = ({
   isMulti = false,
 }: FormikSelectProps) => {
   //const onChange = (option: ValueType<Option | Option[]>) => {
-  const onChange = (option: ValueType<Option | Option[], boolean>) => {
+  const onChange = (option: OnChangeValue<Option | Option[], boolean>) => {
     console.log('field = ', field.name, ', onChange:', (option as Option).value)
     form.setFieldValue(
       field.name,
