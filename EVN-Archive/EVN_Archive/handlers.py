@@ -27,7 +27,7 @@ class ExpListHandler(APIHandler):
     def get(self):
         # Get list of available experiments and sources from VO and send results to client.
         service = pyvo.dal.TAPService('http://evn-vo.jive.eu/tap')
-        results = service.search("SELECT target_name, obs_id FROM ivoa.obscore")
+        results = service.search("SELECT target_name, obs_id FROM ivoa.obscore", maxrec=80000)
         #expList = sorted([x.decode() for x in set(results.getcolumn('obs_id'))])
         #srcList = sorted([x.decode() for x in set(results.getcolumn('target_name'))])
         expList = sorted([x for x in set(results.getcolumn('obs_id'))])
