@@ -54,13 +54,13 @@
     "dompurify": "^3.1.7",
     "@date-io/core": "^2.17.0",
     "html2canvas":  "^1.4.1",
-    "@jupyterlab/application": "^4.2.5",
-    "@jupyterlab/coreutils": "^6.2.5",
-    "@jupyterlab/launcher": "^4.2.5",
-    "@jupyterlab/notebook": "^4.2.5",
-    "@jupyterlab/services": "^7.2.5",
-    "@jupyterlab/ui-components": "^4.2.5",
-    "@lumino/widgets": "^2.5.0",
+    "@jupyterlab/application": "^4.4.9",
+    "@jupyterlab/coreutils": "^6.4.9",
+    "@jupyterlab/launcher": "^4.4.9",
+    "@jupyterlab/notebook": "^4.4.9",
+    "@jupyterlab/services": "^7.4.9",
+    "@jupyterlab/ui-components": "^4.4.9",
+    "@lumino/widgets": "^2.7.1",
     "@material-table/core": "^6.4.4",
     "@mui/material": "^6.1.1", 
     "@emotion/react": "^11.13.3", 
@@ -76,7 +76,7 @@
     "yup": "^1.4.0"
   },
   "devDependencies": {
-    "@jupyterlab/builder": "^4.2.5",
+    "@jupyterlab/builder": "^4.4.9",
     "@types/json-schema": "^7.0.15",
     "@types/react": "^18.0.26",
     "@typescript-eslint/eslint-plugin": "^8.7.0",
@@ -96,7 +96,7 @@
     "stylelint-config-recommended": "^14.0.1",
     "stylelint-config-standard": "^36.0.1",
     "stylelint-prettier": "^5.0.2",
-    "typescript": "~5.6.2",
+    "typescript": "~5.9.3",
     "yjs": "^13.6.19"
   },
   "resolutions": {
