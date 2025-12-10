@@ -1,4 +1,4 @@
-FROM penngwyn/jupytercasa:casa-6.6
+FROM penngwyn/jupytercasa:casa-6.7
 CMD ["xvfb-run", "jupyter", "lab"]
 
 USER root
@@ -26,3 +26,4 @@ COPY start_jupyter.sh token_service.py /usr/bin/
 
 USER jupyter
 ENV SHELL=/bin/bash
+COPY --chown=jupyter:jupyter gitconfig /home/jupyter/.gitconfig
