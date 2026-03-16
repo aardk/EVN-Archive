@@ -8,14 +8,7 @@ RUN /usr/local/bin/pip install GitPython
 RUN /usr/local/bin/pip install jupyterlab-git
 COPY EVN-Archive /usr/local/EVN-Archive
 RUN cd /usr/local/EVN-Archive \
-    && /usr/local/bin/pip install .\
-    && jupyter server extension enable --py EVN_Archive --sys-prefix 
-#    && jlpm install \
-#    && jlpm \
-#    && jlpm build \
-#    && jlpm install \
-#    && jupyter labextension install . \
-#    && jupyter lab build
+    pip install .
 RUN apt-get update
 RUN apt-get install -y sudo
 

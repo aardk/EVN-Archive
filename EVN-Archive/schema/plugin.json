@@ -1,0 +1,8 @@
+{
+  "jupyter.lab.shortcuts": [],
+  "title": "EVN-Archive",
+  "description": "EVN-Archive settings.",
+  "type": "object",
+  "properties": {},
+  "additionalProperties": false
+}
