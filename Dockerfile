@@ -8,7 +8,7 @@ RUN /usr/local/bin/pip install GitPython
 RUN /usr/local/bin/pip install jupyterlab-git
 COPY EVN-Archive /usr/local/EVN-Archive
 RUN cd /usr/local/EVN-Archive \
-    pip install .
+    && pip install .
 RUN apt-get update
 RUN apt-get install -y sudo
 
