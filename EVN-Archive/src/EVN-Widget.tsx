@@ -13,7 +13,10 @@ import { Options } from "react-select";
 
 import Grid from '@mui/material/Grid';
 import Divider from '@mui/material/Divider';
-import MaterialTable from '@material-table/core';
+import { DataGrid } from '@mui/x-data-grid';
+import Button from '@mui/material/Button';
+import SaveIcon from '@mui/icons-material/Save';
+import Typography from '@mui/material/Typography';
 
 const EVNComponent = (
   props: {
@@ -155,39 +158,58 @@ const EVNComponent = (
   <br />
   <Grid container>
     <Grid item xs={12}>
-    <MaterialTable
-          actions={[{
-            icon: 'save_alt',
-            tooltip: 'Open notebook',
-            onClick: (event, rowData) => {
-            console.log('Find nb for:', rowData.obs_id); 
-            requestAPI<any>('notebooks', {}, {obs_id: rowData.obs_id})
-                .then(search_result => {
-                    console.log('notebooks:', search_result);
-                    requestAPI<any>('get_exp', {}, {obs_id: rowData.obs_id, notebook: search_result[0].notebook})
-                    .then(nb_results => {
-                        console.log('nb_results:', nb_results);
-                        const { commands } = props.jupyter;
-                        commands.execute('docmanager:open', {
-                                          path: nb_results.notebook
-                                        });
+      <Typography variant="h6" sx={{ mb: 2 }}>Search results</Typography>
+      <DataGrid
+        rows={results}
+        getRowId={row => `${row.obs_id}-${row.target_name}-${row.s_ra}-${row.s_dec}`}
+        columns={[
+          { field: 'obs_id', headerName: 'Experiment', flex: 1 },
+          { field: 'target_name', headerName: 'Source', flex: 1 },
+          { field: 's_ra', headerName: 'Ra', flex: 1 },
+          { field: 's_dec', headerName: 'Dec', flex: 1 },
+          { field: 't_exptime', headerName: 'Exp. time [s]', flex: 1, type: 'number' },
+          { field: 'dist', headerName: 'Distance [deg]', flex: 1, type: 'number' },
+          {
+            field: 'actions',
+            headerName: 'Actions',
+            flex: 1,
+            sortable: false,
+            filterable: false,
+            renderCell: (params) => (
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<SaveIcon />}
+                onClick={() => {
+                  const rowData = params.row;
+                  console.log('Find nb for:', rowData.obs_id);
+                  requestAPI<any>('notebooks', {}, { obs_id: rowData.obs_id })
+                    .then(search_result => {
+                      console.log('notebooks:', search_result);
+                      requestAPI<any>('get_exp', {}, { obs_id: rowData.obs_id, notebook: search_result[0].notebook })
+                        .then(nb_results => {
+                          console.log('nb_results:', nb_results);
+                          const { commands } = props.jupyter;
+                          commands.execute('docmanager:open', {
+                            path: nb_results.notebook
+                          });
+                        });
                     });
-                });
-              } 
-            }
-          ]}
-          columns={[
-            { title: 'Experiment', field: 'obs_id' },
-            { title: 'Source', field: 'target_name' },
-            { title: 'Ra', field: 's_ra'},
-            { title: 'Dec', field: 's_dec'},
-            { title: 'Exp. time [s]', field: 't_exptime'},
-            { title: 'Distance [deg]', field: 'dist'} ]}
-          data={results}
-          title="Search results"
-        /> 
-      </Grid>
+                }}
+              >
+                Open
+              </Button>
+            )
+          }
+        ]}
+        autoHeight
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } }
+        }}
+        pageSizeOptions={[5, 10, 25]}
+      />
     </Grid>
+  </Grid>
    </div>
   );
 };
