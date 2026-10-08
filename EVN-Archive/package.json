@@ -56,12 +56,12 @@
     "@date-io/core": "~2.17.0",
     "@emotion/react": "~11.13.3",
     "@emotion/styled": "~11.13.0",
-    "@jupyterlab/application": "~4.5.7",
-    "@jupyterlab/coreutils": "~6.5.7",
-    "@jupyterlab/launcher": "~4.5.7",
-    "@jupyterlab/notebook": "~4.5.7",
-    "@jupyterlab/services": "~7.5.7",
-    "@jupyterlab/ui-components": "~4.5.7",
+    "@jupyterlab/application": "^4.5.7",
+    "@jupyterlab/coreutils": "^6.5.7",
+    "@jupyterlab/launcher": "^4.5.7",
+    "@jupyterlab/notebook": "^4.5.7",
+    "@jupyterlab/services": "^7.5.7",
+    "@jupyterlab/ui-components": "^4.5.7",
     "@lumino/widgets": "~2.7.1",
     "@mui/base": "~5.0.0-beta.40",
     "@mui/icons-material": "~6.0.0",
@@ -106,6 +106,7 @@
   },
   "resolutions": {
     "lib0": "0.2.111",
+    "@types/node": "~22.x",
     "webpack": "5.106.0"
   },
   "sideEffects": [
